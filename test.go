@@ -10,6 +10,24 @@ import (
 )
 
 func main() {
+
+	// Example data
+	/*
+		{
+			"data": [
+				{
+				"name": "Employee One",
+				"office": "City One",
+				"title": "Title One",
+				"salary": "Salary One"
+				},
+				.
+				.
+				.
+			]
+		}
+	*/
+
 	employees := requestData()["data"]
 
 	fmt.Println("Number of employees:", len(employees))
@@ -49,28 +67,6 @@ func requestData() map[string][]map[string]string {
 		return result
 	}
 
-	// Parse the response. Put the employee data into an array for further use.
-	/*
-		{
-			"data": [
-				{
-				"name": "Employee One",
-				"office": "City One",
-				"title": "Title One",
-				"salary": "Salary One"
-				},
-				{
-				"name": "Employee Two",
-				"office": "City Two",
-				"title": "Title Two",
-				"salary": "Salary Two"
-				},
-				.
-				.
-				.
-			]
-		}
-	*/
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		fmt.Println("JSON error:", err)
