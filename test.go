@@ -10,7 +10,18 @@ import (
 )
 
 func main() {
-	// send http request with the login info to get the employee data
+	employees := requestData()["data"]
+
+	fmt.Println("Number of employees:", len(employees))
+
+	calculatePayStats(employees)
+
+}
+
+// requestData sends an HTTP request and returns the parsed JSON
+func requestData() map[string][]map[string]string {
+	var result map[string][]map[string]string
+
 	url := "https://test.gls.com/salary-base.json"
 
 	username := "user1"
@@ -19,7 +30,7 @@ func main() {
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		fmt.Println("Request creation error:", err)
-		return
+		return result
 	}
 
 	req.SetBasicAuth(username, password)
@@ -28,14 +39,14 @@ func main() {
 	resp, err := client.Do(req)
 	if err != nil {
 		fmt.Println("Request error:", err)
-		return
+		return result
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
 		fmt.Println("Request failed:", resp.Status)
-		return
+		return result
 	}
 
 	// Parse the response. Put the employee data into an array for further use.
@@ -60,23 +71,21 @@ func main() {
 			]
 		}
 	*/
-	var result map[string][]map[string]string
-
 	err = json.NewDecoder(resp.Body).Decode(&result)
 	if err != nil {
 		fmt.Println("JSON error:", err)
-		return
+		return result
 	}
 
-	employees := result["data"]
+	return result
+}
 
-	fmt.Println("Number of employees:", len(employees))
-
-	// Calculate the min, median, max of employee salaries.
-	var salaries []float64 = make([]float64, len(employees))
+// Calculates the min median and max pay rate of the employees
+func calculatePayStats(employeeData []map[string]string) {
+	var salaries []float64 = make([]float64, len(employeeData))
 
 	replacer := strings.NewReplacer("$", "", ",", "")
-	for i, employee := range employees {
+	for i, employee := range employeeData {
 		temp := replacer.Replace(employee["salary"])
 		salfloat, _ := strconv.ParseFloat(temp, 64)
 		salaries[i] = salfloat
